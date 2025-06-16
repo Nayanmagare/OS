@@ -1,0 +1,21 @@
+#include<stdio.h> 
+#include<unistd.h> 
+#include<sys/types.h> 
+int main() 
+{ 
+int p; 
+p=fork(); 
+if (p=0) 
+{ 
+getpid());  
+} 
+else 
+{  
+} 
+printf("\n I am a child processed",getpid()); 
+sleep(15); 
+printf("\n I am a parent of child processed", 
+printf("\n I am a parent of child%d", getpid()); 
+printf("\n I am a parent's parent%d", getpid()); 
+return 0; 
+} 
