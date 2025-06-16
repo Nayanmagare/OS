@@ -1,0 +1,44 @@
+#include <stdio.h> 
+ 
+int main()  
+{ 
+    int bt[20], p, wt = 0, tat, i, j, twt = 0, ttat = 0, temp; 
+ 
+    printf("Enter the number of processes: "); 
+    scanf("%d", &p); 
+ 
+    printf("Enter the burst time for each process:\n"); 
+    for (i = 0; i < p; i++)  
+    { 
+        scanf("%d", &bt[i]); 
+    } 
+ 
+    // Sorting burst time in ascending order 
+    for (i = 0; i < p - 1; i++)  
+    { 
+        for (j = i + 1; j < p; j++)  
+        { 
+            if (bt[i] > bt[j])  
+            { 
+                temp = bt[i]; 
+                bt[i] = bt[j]; 
+                bt[j] = temp; 
+            } 
+        } 
+    } 
+ 
+    printf("Burst time\tWaiting time\tTurn-around time\n"); 
+ 
+    for (i = 0; i < p; i++)  
+    { 
+        tat = bt[i] + wt; 
+        twt += wt; 
+        ttat += tat; 
+        printf("%-12d\t%-12d\t%-15d\n", bt[i], wt, tat);  // Adjusted spacing for alignment 
+        wt += bt[i]; 
+    } 
+ 
+printf("\nAverage waiting time: %.2f", (float)twt / p); 
+printf("\nAverage turn-around time: %.2f", (float)ttat / p); 
+return 0; 
+}  
