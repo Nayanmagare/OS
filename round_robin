@@ -1,0 +1,110 @@
+#include <stdio.h>
+
+struct Process {
+    int pid, at, bt, ct, tat, wt, remaining;
+};
+
+void sort_by_pid(struct Process p[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (p[j].pid > p[j + 1].pid) {
+                struct Process temp = p[j];
+                p[j] = p[j + 1];
+                p[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void round_robin(struct Process p[], int n, int tq) {
+    int time = 0, completed = 0;
+    float total_tat = 0, total_wt = 0;
+    for (int i = 0; i < n; i++) p[i].remaining = p[i].bt;
+
+    printf("\nGantt Chart:\n ");
+    for (int i = 0; i < n * 5; i++) printf("-");
+    printf("\n|");
+
+    int queue[100], front = 0, rear = 0, in_queue[n];
+    for (int i = 0; i < n; i++) in_queue[i] = 0;
+
+    // Initially push processes with AT = 0
+    for (int i = 0; i < n; i++) {
+        if (p[i].at == 0) {
+            queue[rear++] = i;
+            in_queue[i] = 1;
+        }
+    }
+
+    while (completed < n) {
+        if (front == rear) {
+            time++;
+            for (int i = 0; i < n; i++) {
+                if (p[i].at <= time && p[i].remaining > 0 && !in_queue[i]) {
+                    queue[rear++] = i;
+                    in_queue[i] = 1;
+                }
+            }
+            continue;
+        }
+
+        int idx = queue[front++];
+
+        printf(" P%d |", p[idx].pid);
+
+        int exec = (p[idx].remaining < tq) ? p[idx].remaining : tq;
+        time += exec;
+        p[idx].remaining -= exec;
+
+        for (int i = 0; i < n; i++) {
+            if (p[i].at > time - exec && p[i].at <= time && p[i].remaining > 0 && !in_queue[i]) {
+                queue[rear++] = i;
+                in_queue[i] = 1;
+            }
+        }
+
+        if (p[idx].remaining == 0) {
+            p[idx].ct = time;
+            p[idx].tat = p[idx].ct - p[idx].at;
+            p[idx].wt = p[idx].tat - p[idx].bt;
+            total_tat += p[idx].tat;
+            total_wt += p[idx].wt;
+            completed++;
+        } else {
+            queue[rear++] = idx;
+        }
+    }
+
+    printf("\n ");
+    for (int i = 0; i < n * 5; i++) printf("-");
+    printf("\n");
+
+    sort_by_pid(p, n);
+
+    printf("\nPID\tAT\tBT\tCT\tTAT\tWT\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t%d\t%d\t%d\n",
+               p[i].pid, p[i].at, p[i].bt, p[i].ct, p[i].tat, p[i].wt);
+    }
+
+    printf("\nAverage Turnaround Time: %.2f\n", total_tat / n);
+    printf("Average Waiting Time: %.2f\n", total_wt / n);
+}
+
+int main() {
+    int n, tq;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    struct Process p[n];
+    printf("Enter PID, Arrival Time and Burst Time:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d %d %d", &p[i].pid, &p[i].at, &p[i].bt);
+    }
+
+    printf("Enter Time Quantum: ");
+    scanf("%d", &tq);
+
+    round_robin(p, n, tq);
+    return 0;
+}
